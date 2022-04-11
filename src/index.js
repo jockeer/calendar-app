@@ -1,3 +1,5 @@
+import React from 'react';
+import './styles/styles.css'
 import { createRoot } from 'react-dom/client';
 
 import { CalendarApp } from './CalendarApp';
