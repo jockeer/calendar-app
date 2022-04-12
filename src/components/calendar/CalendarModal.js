@@ -1,9 +1,10 @@
 import moment from 'moment';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DateTimePicker from 'react-datetime-picker';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import { eventAddNew, eventClearActiveEvent, eventUpdated } from '../../actions/events';
 import { uiCloseModal } from '../../actions/ui';
 import '../../styles/modal.css'
 const customStyles = {
@@ -22,30 +23,43 @@ Modal.setAppElement('#root');
 const now= moment().minutes(0).seconds(0).add(1,'hours')
 const late= now.clone().add(1,'hours')
 
+const initEvent = {
+    title:'',
+    notes:'',
+    start: now.toDate(),
+    end: late.toDate()
+}
+
 export const CalendarModal = () => {
     const dispatch = useDispatch()
 
     const {modalOpen} = useSelector(state => state.ui)
+    const {activeEvent} = useSelector(state => state.calendar)
 
     const [dateStart, setDateStart] = useState(now.toDate())
     const [dateEnd, setDateEnd] = useState(late.toDate())
     const [titleValid, setTitleValid] = useState(true)
 
-    const [formValues, setformValues] = useState({
-        title:'Evento',
-        notes:'',
-        start: now.toDate(),
-        end: late.toDate()
-    })
+    const [formValues, setformValues] = useState(initEvent)
 
     const { title, notes, start, end} = formValues
 
+    useEffect(() => {
+        if (activeEvent) {
+            setformValues(activeEvent);
+        }
+    
+      
+    }, [activeEvent, setformValues])
+    
+
     const closeModal = () => {
-        //TODO: Cerrar el modal
-        console.log('cerrar modal');
         dispatch(uiCloseModal())
+        dispatch(eventClearActiveEvent())
+        setformValues(initEvent)
     
     }
+
     const handleStartDateChange = (e) => {
         setDateStart(e)
         setformValues({
@@ -53,6 +67,7 @@ export const CalendarModal = () => {
             'start' : e
         })
     }
+
     const handleEndDateChange = (e) => {
         setDateEnd(e)
         setformValues({
@@ -79,6 +94,20 @@ export const CalendarModal = () => {
             return
         }
         //TODO: realizar grabacion en la BD
+        if (activeEvent) {
+            dispatch(eventUpdated(formValues))
+        }
+        else{
+            dispatch(eventAddNew({
+                id: new Date().getTime(),
+                ...formValues,
+                user:{
+                    _id: '123',
+                    name: 'Daniel'
+                }
+            }))
+
+        }
         setTitleValid(true)
         closeModal()
     }
