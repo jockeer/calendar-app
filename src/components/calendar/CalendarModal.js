@@ -4,7 +4,7 @@ import DateTimePicker from 'react-datetime-picker';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import { eventAddNew, eventClearActiveEvent, eventUpdated } from '../../actions/events';
+import { eventStartAddNew, eventClearActiveEvent, startEventUpdate } from '../../actions/events';
 import { uiCloseModal } from '../../actions/ui';
 import '../../styles/modal.css'
 const customStyles = {
@@ -97,17 +97,10 @@ export const CalendarModal = () => {
         }
         //TODO: realizar grabacion en la BD
         if (activeEvent) {
-            dispatch(eventUpdated(formValues))
+            dispatch(startEventUpdate(formValues))
         }
         else{
-            dispatch(eventAddNew({
-                id: new Date().getTime(),
-                ...formValues,
-                user:{
-                    _id: '123',
-                    name: 'Daniel'
-                }
-            }))
+            dispatch(eventStartAddNew(formValues))
 
         }
         setTitleValid(true)
